@@ -7,14 +7,14 @@ st.set_page_config(page_title="ContextGuard", layout="centered")
 
 # Dummy user database
 users_db: Dict[str, Dict[str, str]] = {
-    "Tony": {"password": "iron123", "role": "engineering"},
-    "Bruce": {"password": "securepass", "role": "marketing"},
-    "Sam": {"password": "financepass", "role": "finance"},
-    "Peter": {"password": "pete123", "role": "engineering"},
-    "Sid": {"password": "sidpass123", "role": "marketing"},
-    "Natasha": {"password": "hrpass123", "role": "hr"},
-    "Thor": {"password": "thorpass04", "role": "c-levelexecutives"},
-    "hawkeye": {"password": "hawke777", "role": "employee"}
+    "Alice": {"password": "pass135", "role": "c-levelexecutives"},
+    "Bob": {"password": "bobhr093", "role": "hr"},
+    "Victoria": {"password": "clarapass234", "role": "finance"},
+    "David": {"password": "davm03", "role": "marketing"},
+    "Maya": {"password": "empass934", "role": "engineering"},
+    "William": {"password": "wilpas301", "role": "marketing"},
+    "Thomas": {"password": "paspo023", "role": "engineering"},
+    "Jack": {"password": "jakepas123", "role": "employee"}
 }
 
 # 2. Initialize Session State
