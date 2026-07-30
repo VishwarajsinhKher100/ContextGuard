@@ -1,5 +1,6 @@
 import streamlit as st
 from typing import Dict
+from backend import query_rag_pipeline
 
 # 1. Page Configuration
 st.set_page_config(page_title="ContextGuard", layout="centered")
