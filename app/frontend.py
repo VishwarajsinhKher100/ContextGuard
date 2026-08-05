@@ -85,10 +85,11 @@ else:
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # Generate and display assistant response
+        # Generate and stream assistant response
         with st.chat_message("assistant"):
             with st.spinner("Searching authorized docs..."):
-                response = query_rag_pipeline(prompt, st.session_state["role"])
-                st.markdown(response)
+                stream_generator = query_rag_pipeline(prompt, st.session_state["role"])
+                full_response = st.write_stream(stream_generator)
         
-        st.session_state["messages"].append({"role": "assistant", "content": response})
+        # Save complete streamed output to session state history
+        st.session_state["messages"].append({"role": "assistant", "content": full_response})

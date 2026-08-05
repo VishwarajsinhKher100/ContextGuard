@@ -1,4 +1,5 @@
 import os
+from typing import Generator
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain_community.embeddings import SentenceTransformerEmbeddings
@@ -84,10 +85,10 @@ def ingest_documents():
         print(f"Successfully indexed {len(all_chunks)} chunks into ChromaDB!")
 
 # -------------------------------------------------------------------
-# 2. RAG Query Pipeline
+# 2. RAG Query Pipeline (Streamed)
 # -------------------------------------------------------------------
-def query_rag_pipeline(user_query: str, user_role: str) -> str:
-    """Retrieves role-specific context using ChromaDB metadata filters and generates an LLM response."""
+def query_rag_pipeline(user_query: str, user_role: str) -> Generator[str, None, None]:
+    """Retrieves role-specific context using ChromaDB metadata filters and streams LLM response chunks."""
     
     embeddings = SentenceTransformerEmbeddings(model_name=EMBEDDING_MODEL)
     
@@ -97,7 +98,7 @@ def query_rag_pipeline(user_query: str, user_role: str) -> str:
         embedding_function=embeddings
     )
     
-    # Filter documents where user's role exists inside 'allowed_roles' metadata list
+    # Filter documents where user's role exists inside 'allowed_role' metadata
     retriever = vectorstore.as_retriever(
         search_type="similarity",
         search_kwargs={
@@ -111,7 +112,8 @@ def query_rag_pipeline(user_query: str, user_role: str) -> str:
     context = "\n\n".join([doc.page_content for doc in docs])
     
     if not context:
-        return "I couldn't find any relevant documents authorized for your role."
+        yield "I couldn't find any relevant documents authorized for your role."
+        return
 
     # Prompt Setup
     prompt = ChatPromptTemplate.from_template(
@@ -120,10 +122,11 @@ def query_rag_pipeline(user_query: str, user_role: str) -> str:
         "Question: {question}"
     )
     
-    llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0)
+    llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0, streaming=True)
     chain = prompt | llm | StrOutputParser()
     
-    return chain.invoke({"context": context, "question": user_query})
+    # Yield tokens as they are generated
+    yield from chain.stream({"context": context, "question": user_query})
 
 
 # Execute ingestion once on script run if ChromaDB directory doesn't exist
