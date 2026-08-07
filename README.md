@@ -52,13 +52,14 @@ This chatbot solves FinSolve's data access problem using:
 
 ## **Tech Stack**
 
-| Layer         | Tool/Library             |
-|---------------|--------------------------|
-| Frontend      | Streamlit                |
-| Embeddings    | SentenceTransformers     |
-| Vector DB     | ChromaDB                 |
-| LLM           | LLaMA 3 (via Ollama)     |
-| Doc Format    | Markdown (.md)           |
+| Layer            | Tool/Library             |
+|------------------|--------------------------|
+| Frontend         | Streamlit                |
+| Embeddings       | SentenceTransformers     |
+| Vector DB        | ChromaDB                 |
+| LLM              | LLaMA 3 (via Ollama)     |
+| Doc Format       | Markdown (.md)           |
+| user database    | sqlite                   |
 
 
 ## **Sample Users & Roles**
@@ -79,25 +80,35 @@ This chatbot solves FinSolve's data access problem using:
 
 ```mermaid
 flowchart TD
+    subgraph User
+    end
+
     subgraph Frontend
         ST[Streamlit UI<br><b>frontend.py</b>]
+    end
+
+    subgraph Database
+        DB[Useraname<br><b>users.db</b>]
     end
 
     subgraph Backend
         RAG[RAG Pipeline<br><b>backend.py</b>]
     end
 
-    subgraph DB
-        CH[ChromaDB<br><b>chroma_db + chroma_store</b>]
+    subgraph Vector Database
+        CH[ChromaDB<br><b>chroma_db/</b>]
     end
 
     subgraph Data
         Files[Markdown / CSV Files<br><b>resources/data</b>]
     end
 
+    User --> ST
+    ST --> User
+    DB --> ST
     ST --> RAG
     RAG --> CH
-    Files --> CH
+    Files --> RAG
     CH --> RAG
     RAG --> ST
 ```
@@ -129,6 +140,7 @@ ContextGuard/
 ├── pyproject.toml
 ├── README.md
 ├── requirements.txt
+├── users.db
 └── uv.lock
 ```
 

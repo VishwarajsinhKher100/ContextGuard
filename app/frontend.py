@@ -1,23 +1,14 @@
+import sqlite3
 import streamlit as st
-from typing import Dict
 from backend import query_rag_pipeline
 
-# 1. Page Configuration
+# Page Configuration
 st.set_page_config(page_title="ContextGuard", layout="centered")
 
-# Dummy user database
-users_db: Dict[str, Dict[str, str]] = {
-    "Alice": {"password": "pass135", "role": "c-levelexecutives"},
-    "Bob": {"password": "bobhr093", "role": "hr"},
-    "Victoria": {"password": "clarapass234", "role": "finance"},
-    "David": {"password": "davm03", "role": "marketing"},
-    "Maya": {"password": "empass934", "role": "engineering"},
-    "William": {"password": "wilpas301", "role": "marketing"},
-    "Thomas": {"password": "paspo023", "role": "engineering"},
-    "Jack": {"password": "jakepas123", "role": "employee"}
-}
+# Database Path
+DB_PATH = "users.db"
 
-# 2. Initialize Session State
+# Initialize Session State
 if "authenticated" not in st.session_state:
     st.session_state["authenticated"] = False
 if "username" not in st.session_state:
@@ -28,17 +19,32 @@ if "messages" not in st.session_state:
     st.session_state["messages"] = []
 
 
-# 3. Authentication Logic
+# Authentication Logic
 def login_user(username, password):
-    user = users_db.get(username)
-    if user and user["password"] == password:
-        st.session_state["authenticated"] = True
-        st.session_state["username"] = username
-        st.session_state["role"] = user["role"]
-        st.success(f"Welcome back, {username}!")
-        st.rerun()
-    else:
-        st.error("Invalid username or password.")
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT password, role
+        FROM users
+        WHERE username = ?
+    """, (username,))
+
+    user = cursor.fetchone()
+    conn.close()
+
+    if user:
+        stored_password, role = user
+
+        if stored_password == password:
+            st.session_state["authenticated"] = True
+            st.session_state["username"] = username
+            st.session_state["role"] = role
+
+            st.success(f"Welcome back, {username}!")
+            st.rerun()
+
+    st.error("Invalid username or password.")
 
 def logout_user():
     st.session_state["authenticated"] = False
@@ -48,7 +54,7 @@ def logout_user():
     st.rerun()
 
 
-# 4. Interface Rendering
+# Interface Rendering
 if not st.session_state["authenticated"]:
     # LOGIN FORM
     st.title("🔒 Sign In")
