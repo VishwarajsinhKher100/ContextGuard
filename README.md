@@ -1,12 +1,10 @@
-# **ContextGuard**
+# **ContextGuard** : Role-Based Access Control (RBAC) RAG System
 
-A secure, intelligent chatbot powered by **LLMs + Vector Search (RAG)** — with **role-based access control (RBAC)** for Finance, HR, Engineering, Marketing, Employees, and C-Level Executives.
-
+An intelligent, secure retrieval-augmented generation (RAG) system built with **LangChain**, **Groq** (llama-3.3-70b-versatile), **ChromaDB**, and **Streamlit**. The application enforces strict Role-Based Access Control (RBAC) on company documents, ensuring users can only query information authorized for their specific organizational role. Full observability, run tracking, and chain monitoring are integrated via **LangSmith**.
 
 ## **Problem Background**
 
 **FinSolve Technologies**, a leading FinTech company, was experiencing communication delays and fragmented document access across teams like Finance, HR, Marketing, Engineering, and C-Level Executives. These issues led to slower decision-making and operational inefficiencies, as teams lacked a centralized, secure way to access internal knowledge specific to their roles.
-
 
 ## **Solution Overview**
 
@@ -19,217 +17,76 @@ This chatbot solves FinSolve's data access problem using:
 - **Streamlit** for interactive chat and login
 - **Documents** stored per department with metadata
 
-
-## **Role-Based Access Control (RBAC)**
-
-| Role               | Permissions                                                                 |
-|--------------------|-----------------------------------------------------------------------------|
-| C-Level Executives | Full unrestricted access to all documents                                   |
-| Finance Team       | Financial reports, expenses, reimbursements                                 |
-| Marketing Team     | Campaign performance, customer insights, sales data                         |
-| HR Team            | Employee handbook, attendance, leave, payroll                               |
-| Engineering Dept.  | System architecture, deployment, CI/CD                                      |
-| Employees          | General information (FAQs, company policies, events)                        |
-
-
 ## **Features**
 
-### Secure Role-Based Search
-- Each user sees **only** their permitted data
-- C-level users get **unfiltered** access
+* **Role-Based Document Filtering**: Automatically processes Markdown (.md) and CSV files across department directories, tagging chunks with scalar metadata (allowed_role) to restrict retrieval based on user authorization.
 
-### Interactive Chat Interface
-- Built with **Streamlit**
-- Login panel with session persistence
-- Typing animation + Chat history
-- Role access transparency shown in every response
+* **Full Observability & Tracing**: Native LangSmith integration to monitor LLM generation latency, track retrieval performance, debug document routing, and log user chat interactions.
 
-### Context-Aware Retrieval
-- Vector DB powered by **Chroma**
-- Embeds `.md` files per department with metadata (`role`)
-- Queries run through vector similarity → LLM → Answer
+* **User Authentication & Session Management**: SQLite-backed authentication system handling secure logins, role assertions, and session state retention.
 
+* **Streaming RAG Pipeline**: Low-latency, real-time token streaming powered by ChatGroq (llama-3.3-70b-versatile) and LangChain Runnable chains.
+
+* **Interactive Streamlit UI**: User-friendly chat interface displaying role attributes, login forms, interactive session clearing, and live response rendering.
 
 ## **Tech Stack**
 
-| Layer            | Tool/Library             |
-|------------------|--------------------------|
-| Frontend         | Streamlit                |
-| Embeddings       | SentenceTransformers     |
-| Vector DB        | ChromaDB                 |
-| LLM              | LLaMA 3 (via Ollama)     |
-| Doc Format       | Markdown (.md)           |
-| user database    | sqlite                   |
+| Layer                        | Tool/Library                          |
+|------------------------------|---------------------------------------|
+| Frontend                     | Streamlit                             |
+| Orchestration                | LangChain Core                        |
+| Observability & Evaluation   | LangSmith                             |
+| LLM Provider                 | Groq (llama-3.3-70b-versatile)        |
+| Vector DB                    | ChromaDB (langchain-chroma / Chroma)  |
+| Embedding Model              | HuggingFace (all-MiniLM-L6-v2)        |
+| Authentication & Users       | SQLite (users.db)                     |
 
+## **Setup Instructions**
 
-## **Sample Users & Roles**
-
-| Username | Password     | Role              |
-|----------|--------------|-------------------|
-| Alice    | pass135      | c-levelexecutives |
-| Bob      | bobhr093     | hr                |
-| Victoria | clarapass234 | finance           |
-| David    | davm03       | marketing         |
-| Maya     | empass934    | engineering       |
-| William  | wilpas301    | marketing         |
-| Thomas   | paspo023     | engineering       |
-| Jack     | jakepas123   | employee          |
-
-
-## **Project Architecture**
-
-```mermaid
-flowchart TD
-    subgraph User
-    end
-
-    subgraph Frontend
-        ST[Streamlit UI<br><b>frontend.py</b>]
-    end
-
-    subgraph Database
-        DB[Useraname<br><b>users.db</b>]
-    end
-
-    subgraph Backend
-        RAG[RAG Pipeline<br><b>backend.py</b>]
-    end
-
-    subgraph Vector Database
-        CH[ChromaDB<br><b>chroma_db/</b>]
-    end
-
-    subgraph Data
-        Files[Markdown / CSV Files<br><b>resources/data</b>]
-    end
-
-    User --> ST
-    ST --> User
-    DB --> ST
-    ST --> RAG
-    RAG --> CH
-    Files --> RAG
-    CH --> RAG
-    RAG --> ST
-```
-
-
-## **Project Structure**
-
-```
-ContextGuard/
-├── .venv/
-├── app/
-│   ├── __pycache__/
-│   ├── backend.py
-│   └── frontend.py
-│
-├── chroma_db/
-|
-├── resources/
-│   └── data/
-│       ├── engineering/
-│       ├── finance/
-│       ├── general/
-│       ├── hr/
-│       └── marketing/
-│
-├── .env
-├── .gitignore
-├── .python-version
-├── pyproject.toml
-├── README.md
-├── requirements.txt
-├── users.db
-└── uv.lock
-```
-
-
-## **Getting Started**
-
-### **Prerequisites**
-
-- Python `3.14+`
-- [Streamlit](https://streamlit.io/)
-- [LangChain](https://docs.langchain.com/)
-
-
-### **Setup Instructions**
-
-#### 1. Clone the Repository
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/VishwarajsinhKher100/ContextGuard.git
 ```
 
-#### 2. Create Virtual Environment
+### 2. Create Virtual Environment
 ```bash
 uv venv
 ```
 
-Activate the virtual environment:
+#### Activate the virtual environment:
 
 ```bash
-venv\Scripts\activate     # On Windows
+.venv\Scripts\activate     # On Windows
 # OR
-source venv/bin/activate  # On Mac/Linux
+source .venv/bin/activate  # On Linux/macOS:
 ```
 
-Install the dependencies:
+### 3. Install Dependencies
 
 ```bash
-uv add -r requirements.txt
+uv sync
 ```
 
-#### 3. Add Your API Keys
+### 4. Configure Environment Variables
 
-Make sure to set your `GROQ_API_KEY` in a .env file.
-
-#### 4. Run the Application
-
-To embed documents into ChromaDB (Run Once Before Use):
+Create a .env file in the project root:
 
 ```bash
-python app/backend.py
+GROQ_API_KEY=your_groq_api_key_here
+
+# LangSmith Configuration
+LANGCHAIN_TRACING_V2=true
+LANGCHAIN_API_KEY=your_langsmith_api_key_here
+LANGCHAIN_PROJECT=OmniRAG
 ```
 
-This script:
-Loads documents from the data/ folder
-Generates embeddings using sentence-transformers
-Stores them in ChromaDB with role-based metadata
+### 5. Running the Application
 
-Once these steps are done, your role-based chatbot is fully set up and ready to use! 
-
-To run streamlit application
+Launch the Streamlit web application:
 
 ```bash
 streamlit run app/frontend.py
 ```
-
-
-## Extending & Customizing
-
-**Add new roles:**  
-- Create a new folder in `resources/data/` named after the new department (e.g., `resources/data/legal/`).
-- Add your `.md` documents there.
-- Update user credentials and roles in your `frontend.py` or wherever your user-role DB/auth is managed.
-
-**Add new document types:**  
-- Extend the file parsing logic inside `app/backend.py` to handle more than `.md` and `.csv` files (like `.pdf`, `.xlsx`, `.docx`, etc.).
-
-**Change embedding model:**  
-- Inside `app/backend.py`, change the line where you set:
-  ```python
-  EMBEDDING_MODEL = "all-MiniLM-L6-v2"
-  ```
-  to any other `sentence-transformers` model.
-
-**Switch LLM:**  
-- Update the `model` name in your code (`app/backend.py`), where you send the prompt to llama model:
-  ```python
-  llm = ChatGroq(model="llama-3.3-70b-versatile", temperature=0)
-  ```
-  Replace `"llama-3.3-70b-versatile"` with another models.
-
 
 ## **Query Samples**
 
